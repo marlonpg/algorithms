@@ -1,0 +1,26 @@
+name:                NQueenProblem
+version:             0.1.0.0
+synopsis:            N-Queen problem solver
+category:            Example
+extra-source-files:  README.md
+
+dependencies:
+  - base >= 4.7 && < 5
+  - HUnit
+
+library:
+  source-dirs: src
+  dependencies:
+    - base
+
+tests:
+  NQueenProblem-test:
+    main:                SolutionTest.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - NQueenProblem
+    - HUnit
