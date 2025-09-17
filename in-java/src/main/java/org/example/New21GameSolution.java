@@ -2,6 +2,9 @@ package org.example;
 
 public class New21GameSolution {
     
+    // n: maximum points
+    // k: points threshold to stop drawing
+    // maxPts: maximum points that can be drawn in one turn
     public double new21Game(int n, int k, int maxPts) {
         //edge cases
         if (k == 0 || n >= k + maxPts - 1){
@@ -18,7 +21,7 @@ public class New21GameSolution {
             sum += dp[i];
         }
         
-        // Fill dp array backwards from k-1 to 0
+        // fill dp array backwards from k-1 to 0
         for (int i = k - 1; i >= 0; i--) {
             dp[i] = sum / maxPts;
             sum += dp[i] - dp[i + maxPts];
