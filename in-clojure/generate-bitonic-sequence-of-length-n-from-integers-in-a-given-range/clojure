@@ -1,0 +1,6 @@
+#!/bin/bash
+if [ "$1" = "-version" ] || [ "$1" = "--version" ]; then
+    java -cp "/c/ProgramData/chocolatey/lib/clojure/tools/ClojureTools/clojure-tools-1.12.3.1577.jar" clojure.main -e '(println (clojure-version))'
+else
+    java -cp "/c/ProgramData/chocolatey/lib/clojure/tools/ClojureTools/clojure-tools-1.12.3.1577.jar" clojure.main "$@"
+fi
