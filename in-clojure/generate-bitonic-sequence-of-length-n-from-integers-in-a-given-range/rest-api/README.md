@@ -1,3 +1,10 @@
+# Goals of this POC
+- unit tests
+- performance tests / benchmarks
+- proper documentation
+- expose solution via REST API
+- store results into a database (Redis with Docker)
+
 # Clojure REST API Example
 
 This is a minimal REST API built with **Clojure** using **Ring**, **Reitit**, and **Jetty**.
