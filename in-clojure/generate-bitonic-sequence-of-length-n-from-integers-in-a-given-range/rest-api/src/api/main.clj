@@ -1,7 +1,7 @@
-(ns api.core
+(ns api.main
   (:require
     [ring.adapter.jetty :as jetty]
-    [api.routes :refer [app]]))
+    [api.controller :refer [app]]))
 
 (defn -main []
   (println "Starting server on port 3000...")

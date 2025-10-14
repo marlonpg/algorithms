@@ -4,8 +4,10 @@
         cheshire {:mvn/version "5.12.0"}
         com.taoensso/carmine {:mvn/version "3.3.2"}}
  :aliases
- {:test {:extra-deps {org.clojure/test.check {:mvn/version "1.1.1"}}
+ {:test {:extra-deps {org.clojure/test.check {:mvn/version "1.1.1"}
+                      com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner"
+                                                  :sha "705ad25bbf0228b1c38d0244a36001c2987d7337"}}
          :extra-paths ["test"]
-         :main-opts ["-m" "cognitect.test-runner"]}
+         :exec-fn cognitect.test-runner.api/test}
   :dev {:extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner"
                                                 :sha "705ad25bbf0228b1c38d0244a36001c2987d7337"}}}}}

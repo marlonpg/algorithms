@@ -9,4 +9,4 @@ COPY src/ src/
 
 EXPOSE 3000
 
-CMD ["clj", "-M", "-m", "api.core"]
+CMD ["clj", "-M", "-m", "api.main"]

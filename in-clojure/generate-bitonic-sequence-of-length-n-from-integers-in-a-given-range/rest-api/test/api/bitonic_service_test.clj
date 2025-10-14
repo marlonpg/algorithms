@@ -1,6 +1,6 @@
-(ns api.handlers-test
+(ns api.bitonic-service-test
   (:require [clojure.test :refer :all]
-            [api.handlers :as handlers]
+            [api.bitonic-service :as bitonic-service]
             [api.db :as db]
             [cheshire.core :as json]))
 
@@ -16,18 +16,18 @@
 
 (deftest test-bitonic-sequence
   (testing "generates correct bitonic sequence"
-    (let [result (handlers/bitonic-sequence 6 1 3)]
+    (let [result (bitonic-service/bitonic-sequence 6 1 3)]
       (is (= 6 (count result)))
       (is (every? #(<= 1 % 3) result))))
   
   (testing "handles edge cases"
-    (let [result (handlers/bitonic-sequence 1 5 5)]
+    (let [result (bitonic-service/bitonic-sequence 1 5 5)]
       (is (= 1 (count result)))
       (is (= 5 (first result))))))
 
 (deftest test-health-endpoint
   (testing "returns healthy status"
-    (let [response (handlers/health {})]
+    (let [response (bitonic-service/health {})]
       (is (= 200 (:status response)))
       (is (= "application/json" (get-in response [:headers "Content-Type"])))
       (let [body (json/parse-string (:body response) true)]
@@ -37,7 +37,7 @@
 (deftest test-bitonic-endpoint-with-query-params
   (testing "processes query parameters correctly"
     (let [request {:query-params {"n" "4" "start" "1" "end" "2"}}
-          response (handlers/bitonic request)]
+          response (bitonic-service/bitonic request)]
       (is (= 200 (:status response)))
       (is (= "application/json" (get-in response [:headers "Content-Type"])))
       (let [body (json/parse-string (:body response) true)]
@@ -48,8 +48,8 @@
 (deftest test-bitonic-endpoint-caching
   (testing "caches results correctly"
     (let [request {:query-params {"n" "4" "start" "1" "end" "2"}}
-          response1 (handlers/bitonic request)
-          response2 (handlers/bitonic request)]
+          response1 (bitonic-service/bitonic request)
+          response2 (bitonic-service/bitonic request)]
       (is (= 200 (:status response1)))
       (is (= 200 (:status response2)))
       (let [body1 (json/parse-string (:body response1) true)

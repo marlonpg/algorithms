@@ -1,4 +1,4 @@
-(ns api.handlers
+(ns api.bitonic-service
   (:require [cheshire.core :as json]
             [api.db :as db]
             [taoensso.carmine :as car]))
