@@ -1,14 +1,14 @@
 # Goals of this POC
-- unit tests
+- ✅ unit tests
 - performance tests / benchmarks
-- proper documentation
-- expose solution via REST API
-- store results into a database (Redis with Docker)
+- ✅ proper documentation
+- ✅ expose solution via REST API
+- ✅ store results into a database (Redis with Docker)
 
-# Clojure REST API Example
+# Bitonic Sequence REST API
 
-This is a minimal REST API built with **Clojure** using **Ring**, **Reitit**, and **Jetty**.
-It demonstrates how to structure a small project with clear separation between routes, handlers, and the application entry point.
+This is a REST API built with **Clojure** that generates bitonic sequences and caches results in **Redis**.
+The application is fully containerized using **Docker** and **Docker Compose** for easy deployment.
 
 ---
 
@@ -16,11 +16,18 @@ It demonstrates how to structure a small project with clear separation between r
 
 ```
 src/
-└── my_api/
-├── core.clj        ; Application entry point - starts Jetty server
-├── routes.clj      ; Defines routes and HTTP handlers
-└── handlers.clj    ; Business logic for each endpoint
+└── api/
+    ├── core.clj        ; Application entry point - starts Jetty server
+    ├── routes.clj      ; Defines routes and HTTP handlers
+    ├── handlers.clj    ; Business logic for bitonic sequence generation
+    └── db.clj          ; Redis database operations
+test/
+└── api/
+    ├── handlers_test.clj ; Unit tests for handlers
+    └── db_test.clj       ; Unit tests for database operations
 deps.edn                  ; Project dependencies
+Dockerfile                ; Docker container configuration
+docker-compose.yml        ; Multi-container orchestration
 ```
 
 ---
@@ -30,11 +37,11 @@ deps.edn                  ; Project dependencies
 Defined in `deps.edn`:
 
 ```clojure
-{:deps
-{ring/ring-core {:mvn/version "1.12.1"}
-ring/ring-jetty-adapter {:mvn/version "1.12.1"}
-metosin/reitit-ring {:mvn/version "0.7.0"}
-cheshire {:mvn/version "5.12.0"}}}
+{:deps {ring/ring-core {:mvn/version "1.12.1"}
+        ring/ring-jetty-adapter {:mvn/version "1.12.1"}
+        metosin/reitit-ring {:mvn/version "0.7.0"}
+        cheshire {:mvn/version "5.12.0"}
+        com.taoensso/carmine {:mvn/version "3.3.2"}}}
 ```
 
 ### What Each Library Does
@@ -44,90 +51,133 @@ cheshire {:mvn/version "5.12.0"}}}
 | **Jetty Adapter** | Provides a web server implementation to run the Ring app. |
 | **Reitit** | Fast, data-driven routing library for Ring. |
 | **Cheshire** | JSON encoder/decoder for handling request/response bodies. |
+| **Carmine** | Redis client for Clojure, used for caching bitonic sequences. |
 
 ---
 
 ## 🚀 Running the Application
 
-### Prerequisites
+### Option 1: Docker (Recommended)
 
-* **Java (JDK 8 or later)** installed and available in your PATH.
-* **Clojure CLI tools** installed.
-  Verify installation:
-  ```bash
-  clj -Sdescribe
-  ```
+**Prerequisites:**
+* Docker and Docker Compose installed
 
-### Steps
+**Steps:**
+1. Navigate to the project root:
+   ```bash
+   cd rest-api
+   ```
+2. Start the application and Redis:
+   ```bash
+   docker-compose up --build
+   ```
+3. The API will be available at `http://localhost:3000`
 
-1. Clone or download this project.
-2. Navigate to the project root (where `deps.edn` is located):
+### Option 2: Local Development
+
+**Prerequisites:**
+* Java (JDK 8 or later)
+* Clojure CLI tools
+* Redis server running locally
+
+**Steps:**
+1. Start Redis:
+   ```bash
+   redis-server
+   ```
+2. Navigate to the project root:
    ```bash
    cd rest-api
    ```
 3. Run the app:
    ```bash
-   clj -M -m my-api.core
+   clj -M -m api.core
    ```
-4. Open your browser or use `curl`:
-
-   * `GET http://localhost:3000/hello` → returns a JSON hello message
-   * `GET http://localhost:3000/` → returns `{"error":"Not found"}`
 
 ---
 
-## 🧠 Code Overview
+## 📋 API Endpoints
 
-### `handlers.clj`
-Defines logic for each route:
-```clojure
-(defn hello [_]
-  {:status 200
-   :headers {"Content-Type" "application/json"}
-   :body (json/generate-string {:message "Hello, world!"})})
-```
+### Generate Bitonic Sequence
+**GET/POST** `/bitonic`
 
-### `routes.clj`
-Maps endpoints to handlers and adds a default 404 handler:
-```clojure
-(def app
-  (ring/ring-handler
-    (ring/router
-      [["/hello" {:get handlers/hello}]])))
-```
+**Query Parameters (GET):**
+- `n`: Length of sequence (integer)
+- `start`: Range start (integer)
+- `end`: Range end (integer)
 
-### `core.clj`
-Starts the Jetty server:
-```clojure
-(defn -main []
-  (println "Starting server on port 3000...")
-  (jetty/run-jetty app {:port 3000 :join? false}))
-```
-
----
-
-## ✅ Example Output
-
-**GET /hello**
+**JSON Body (POST):**
 ```json
-{"message":"Hello, world!"}
+{"n": 6, "start": 1, "end": 3}
 ```
 
-**GET /**
+**Response:**
 ```json
-{"error":"Not found"}
+{
+  "sequence": [1, 2, 3, 3, 2, 1],
+  "length": 6,
+  "range": [1, 3],
+  "cached": false
+}
 ```
 
----
+### Health Check
+**GET** `/health`
+
+**Response:**
+```json
+{"status": "ok", "service": "bitonic-api"}
+```
+
+### Clear Cache
+**DELETE** `/cache/clear`
+
+**Response:**
+```json
+{"message": "Cache cleared"}
+```
+
+## 🧪 Running Tests
+
+```bash
+clj -X:test
+```
+
+## 🐳 Docker Commands
+
+**Build and start:**
+```bash
+docker-compose up --build
+```
+
+**Stop containers:**
+```bash
+docker-compose down
+```
+
+**View logs:**
+```bash
+docker-compose logs -f api
+docker-compose logs -f redis
+```
+
+## 🏗️ Architecture
+
+- **API Layer**: Ring + Reitit for HTTP handling
+- **Business Logic**: Pure functions for bitonic sequence generation
+- **Caching**: Redis for storing computed sequences
+- **Containerization**: Docker + Docker Compose for deployment
+- **Testing**: Clojure.test with comprehensive unit tests
 
 ## 🧩 Next Steps
 
-* Add a POST endpoint and parse JSON requests.
-* Use `mount` or `integrant` to manage app lifecycle.
-* Connect to a database using `next.jdbc`.
-* Add request validation with `malli`.
+* Add request validation with `malli`
+* Implement performance benchmarks
+* Add API rate limiting
+* Implement health checks for Redis connectivity
+* Add logging with structured output
 
 ---
 
-**Author:** Example REST API in Clojure
+**Author:** Bitonic Sequence REST API
 **License:** MIT

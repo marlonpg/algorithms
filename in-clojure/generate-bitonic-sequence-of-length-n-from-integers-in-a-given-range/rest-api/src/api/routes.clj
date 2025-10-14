@@ -6,7 +6,7 @@
 (def app
   (ring/ring-handler
     (ring/router
-      [["/hello" {:get handlers/hello}]
-       ["/bitonic" {:get handlers/bitonic
+      [["/bitonic" {:get handlers/bitonic
                     :post handlers/bitonic}]
-       ["/health" {:get handlers/health}]])))
+       ["/health" {:get handlers/health}]
+       ["/cache/clear" {:delete handlers/clear-cache}]])))

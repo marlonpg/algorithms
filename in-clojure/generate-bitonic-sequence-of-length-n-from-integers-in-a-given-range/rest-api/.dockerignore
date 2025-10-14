@@ -1,0 +1,7 @@
+.cpcache/
+.git/
+.gitignore
+README.md
+test/
+docker-compose.yml
+Dockerfile
