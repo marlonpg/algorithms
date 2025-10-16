@@ -1,0 +1,3 @@
+-XX:+IgnoreUnrecognizedVMOptions
+-Xmx2g
+-Xms1g

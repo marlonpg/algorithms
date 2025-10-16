@@ -1,6 +1,6 @@
 # Goals of this POC
 - ✅ unit tests
-- performance tests / benchmarks
+- ✅ performance tests / benchmarks
 - ✅ proper documentation
 - ✅ expose solution via REST API
 - ✅ store results into a database (Redis with Docker)
@@ -17,24 +17,46 @@ The application is fully containerized using **Docker** and **Docker Compose** f
 ```
 src/
 └── api/
-    ├── core.clj        ; Application entry point - starts Jetty server
-    ├── routes.clj      ; Defines routes and HTTP handlers
-    ├── handlers.clj    ; Business logic for bitonic sequence generation
-    └── db.clj          ; Redis database operations
+    ├── main.clj            ; Application entry point - starts Jetty server
+    ├── controller.clj      ; Defines routes and HTTP handlers
+    ├── bitonic_service.clj ; Business logic for bitonic sequence generation
+    └── db.clj              ; Redis database operations
 test/
 └── api/
-    ├── handlers_test.clj ; Unit tests for handlers
-    └── db_test.clj       ; Unit tests for database operations
+    ├── bitonic_service_test.clj ; Unit tests for service
+    └── db_test.clj              ; Unit tests for database operations
 deps.edn                  ; Project dependencies
 Dockerfile                ; Docker container configuration
 docker-compose.yml        ; Multi-container orchestration
+.jvmopts                  ; JVM options for compatibility
 ```
 
 ---
 
-## ⚙️ Dependencies
+## ⚙️ Dependencies & Prerequisites
 
-Defined in `deps.edn`:
+**System Requirements:**
+* Docker and Docker Compose
+* Java (JDK 11, 17, or 21 recommended - avoid Java 25 for Gatling)
+* Clojure CLI tools
+* SBT (for performance tests)
+
+**Installation Commands:**
+```bash
+# Install via Chocolatey (Windows)
+choco install docker-desktop
+choco install openjdk17
+choco install clojure
+choco install sbt
+
+# Or via Scoop
+scoop install docker
+scoop install openjdk17
+scoop install clojure
+scoop install sbt
+```
+
+**Defined in `deps.edn`:**
 
 ```clojure
 {:deps {ring/ring-core {:mvn/version "1.12.1"}
@@ -59,9 +81,6 @@ Defined in `deps.edn`:
 
 ### Option 1: Docker (Recommended)
 
-**Prerequisites:**
-* Docker and Docker Compose installed
-
 **Steps:**
 1. Navigate to the project root:
    ```bash
@@ -75,11 +94,6 @@ Defined in `deps.edn`:
 
 ### Option 2: Local Development
 
-**Prerequisites:**
-* Java (JDK 8 or later)
-* Clojure CLI tools
-* Redis server running locally
-
 **Steps:**
 1. Start Redis:
    ```bash
@@ -91,7 +105,7 @@ Defined in `deps.edn`:
    ```
 3. Run the app:
    ```bash
-   clj -M -m api.core
+   clj -M -m api.main
    ```
 
 ---
@@ -108,15 +122,15 @@ Defined in `deps.edn`:
 
 **JSON Body (POST):**
 ```json
-{"n": 6, "start": 1, "end": 3}
+{"n": 8, "start": 2, "end": 5}
 ```
 
 **Response:**
 ```json
 {
-  "sequence": [1, 2, 3, 3, 2, 1],
-  "length": 6,
-  "range": [1, 3],
+  "sequence": [2, 3, 4, 5, 5, 4, 3, 2],
+  "length": 8,
+  "range": [2, 5],
   "cached": false
 }
 ```
@@ -137,11 +151,24 @@ Defined in `deps.edn`:
 {"message": "Cache cleared"}
 ```
 
+---
+
 ## 🧪 Running Tests
 
+### Unit Tests
 ```bash
 clj -X:test
 ```
+
+### Performance Tests
+```bash
+cd ../performance-tests
+sbt "Gatling / test"
+```
+
+**Note:** Performance tests require Java 11-21. If using Java 25, install Java 17 for Gatling compatibility.
+
+---
 
 ## 🐳 Docker Commands
 
@@ -161,21 +188,27 @@ docker-compose logs -f api
 docker-compose logs -f redis
 ```
 
+---
+
 ## 🏗️ Architecture
 
-- **API Layer**: Ring + Reitit for HTTP handling
-- **Business Logic**: Pure functions for bitonic sequence generation
-- **Caching**: Redis for storing computed sequences
+- **Entry Point**: `main.clj` - Application bootstrap
+- **HTTP Layer**: `controller.clj` - Ring + Reitit for routing
+- **Business Logic**: `bitonic_service.clj` - Pure functions for sequence generation
+- **Data Layer**: `db.clj` - Redis caching operations
+- **Testing**: Unit tests with mocking for Redis operations
+- **Performance**: Gatling load tests with POST requests
 - **Containerization**: Docker + Docker Compose for deployment
-- **Testing**: Clojure.test with comprehensive unit tests
+
+---
 
 ## 🧩 Next Steps
 
 * Add request validation with `malli`
-* Implement performance benchmarks
 * Add API rate limiting
 * Implement health checks for Redis connectivity
-* Add logging with structured output
+* Add structured logging
+* Add metrics and monitoring
 
 ---
 
