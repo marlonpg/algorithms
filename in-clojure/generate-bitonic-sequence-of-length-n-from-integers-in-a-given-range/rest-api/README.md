@@ -1,4 +1,9 @@
 # Goals of this POC
+TODO - Add Gatling to Victor Hugo repo
+     - run Gatling tests and Jmeter
+        - 10.000 scenario
+        - 100.000 scenario in both
+
 - ✅ unit tests
 - ✅ performance tests / benchmarks
 - ✅ proper documentation
