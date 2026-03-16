@@ -31,7 +31,8 @@ public class TextEditor {
         }
         return getLastTenLeftChars();
     }
-    
+    // current text is "mytextexample|"
+    // if I move cursor right 3 times, I want to get "myt|extexample"
     public String cursorRight(int k) {
         int moves = Math.min(k, right.length());
         for (int i = 0; i < moves; i++) {
@@ -40,7 +41,7 @@ public class TextEditor {
         }
         return getLastTenLeftChars();
     }
-
+    
     private String getLastTenLeftChars() {
         int start = Math.max(0, left.length() - 10);
         return left.substring(start);
