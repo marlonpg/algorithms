@@ -41,7 +41,14 @@ public class TextEditor {
         }
         return getLastTenLeftChars();
     }
-    
+
+    public static void main(String[] args) {
+        TextEditor textEditor = new TextEditor();
+        textEditor.addText("mytextexample");
+        System.out.println(textEditor.cursorLeft(5));
+
+    }
+
     private String getLastTenLeftChars() {
         int start = Math.max(0, left.length() - 10);
         return left.substring(start);
